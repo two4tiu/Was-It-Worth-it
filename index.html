@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Was It Worth It? — The Opportunity Cost Calculator</title>
+  <meta name="description" content="Find out what your impulse purchases could've been worth if you'd invested instead. Powered by real market data. Guaranteed to sting a little." />
+  <meta property="og:title" content="Was It Worth It?" />
+  <meta property="og:description" content="Find out what your impulse purchases could've been worth invested in VTI, VOO, or VGT." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="noise"></div>
+
+  <header class="site-header">
+    <div class="logo">Was It Worth It?</div>
+    <div class="tagline">The opportunity cost calculator that judges you</div>
+  </header>
+
+  <main class="container">
+
+    <section class="hero">
+      <h1>Every purchase<br/><span class="accent">has a real price.</span></h1>
+      <p class="hero-sub">Enter what you bought, pick an index fund, and watch us calculate exactly how much future wealth you traded for that thing.</p>
+    </section>
+
+    <section class="calc-card">
+      <div class="form-group">
+        <label for="itemName">What did you buy?</label>
+        <div class="input-row">
+          <input type="text" id="itemName" placeholder="e.g. Fancy sneakers, daily latte, impulse Amazon order…" />
+          <div class="dollar-wrap">
+            <span class="dollar-sign">$</span>
+            <input type="number" id="itemCost" placeholder="Amount" min="0" step="0.01" />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="fundSelect">If invested in</label>
+          <select id="fundSelect">
+            <option value="VTI">VTI — Total Stock Market (~10.5%/yr)</option>
+            <option value="VGT">VGT — Tech Sector (~14.1%/yr)</option>
+            <option value="VOO">VOO — S&P 500 (~10.5%/yr)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="years">Over how many years?</label>
+          <div class="years-wrap">
+            <input type="range" id="yearsRange" min="1" max="40" value="10" />
+            <span class="years-display"><span id="yearsVal">10</span> yrs</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="calc-btn" id="calcBtn" onclick="calculate()">
+        <span class="btn-text">Calculate the real cost</span>
+        <span class="btn-arrow">→</span>
+      </button>
+    </section>
+
+    <section id="results" class="results hidden">
+
+      <div class="gif-zone">
+        <img id="gifImg" src="" alt="Your financial reality check" />
+        <p id="gifCaption" class="gif-caption"></p>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric">
+          <div class="metric-label">You spent</div>
+          <div class="metric-value" id="metricSpent">—</div>
+        </div>
+        <div class="metric highlight">
+          <div class="metric-label">Could've been worth</div>
+          <div class="metric-value green" id="metricWorth">—</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Opportunity cost</div>
+          <div class="metric-value green" id="metricOppty">—</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Annual return used</div>
+          <div class="metric-value" id="metricRate">—</div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Growth over time</span>
+          <div class="chart-legend">
+            <span><i class="dot blue"></i>What you spent</span>
+            <span><i class="dot green"></i>What it could've grown to</span>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="growthChart"></canvas>
+        </div>
+      </div>
+
+      <div class="verdict-card">
+        <div class="verdict-label">THE VERDICT</div>
+        <p class="verdict-text" id="calloutText"></p>
+      </div>
+
+      <div class="action-card">
+        <div class="action-split">
+
+          <div class="email-section">
+            <h3>Save my results</h3>
+            <p>Drop your info and we'll keep your financial regret on record. No spam. Just math.</p>
+            <div class="name-row">
+              <input type="text" id="firstName" placeholder="First name" />
+              <input type="text" id="lastName" placeholder="Last name" />
+            </div>
+            <input type="email" id="emailAddr" placeholder="Email address" />
+            <button class="save-btn" onclick="sendResults()">Save my results</button>
+            <div id="sendFeedback"></div>
+          </div>
+
+          <div class="divider-vert"></div>
+
+          <div class="share-section">
+            <h3>Share the pain</h3>
+            <p>Make your friends feel bad about their spending habits too. It's what communities are for.</p>
+            <div class="share-btns">
+              <button class="share-btn twitter" onclick="shareTwitter()">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                Post on X
+              </button>
+              <button class="share-btn facebook" onclick="shareFacebook()">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                Share on Facebook
+              </button>
+              <button class="share-btn copy" onclick="copyText()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                <span id="copyLabel">Copy text</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+    <section id="leadsSection" class="leads-section hidden">
+      <div class="leads-header">
+        <span>Captured leads <span class="lead-badge" id="leadCount">0</span></span>
+        <button class="export-btn" onclick="exportCSV()">Export CSV</button>
+      </div>
+      <div id="leadsTableWrap">
+        <p class="no-leads" id="noLeadsMsg">No leads yet — be the first guinea pig.</p>
+        <table class="leads-table hidden" id="leadsTable">
+          <thead>
+            <tr><th>First</th><th>Last</th><th>Email</th><th>Item</th><th>Worth</th><th>Time</th></tr>
+          </thead>
+          <tbody id="leadsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>Built for laughs and financial literacy. Not actual investment advice. Please don't sue us.</p>
+    <p class="footer-rates">Historical rates: VTI ~10.47%/yr · VGT ~14.12%/yr · VOO ~10.47%/yr (20-yr avg). Past performance ≠ future results. Obviously.</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
