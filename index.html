@@ -16,8 +16,6 @@
 </head>
 <body>
 
-  <div class="noise"></div>
-
   <header class="site-header">
     <div class="logo">Was It Worth It?</div>
     <div class="tagline">The opportunity cost calculator that judges you</div>
@@ -41,7 +39,6 @@
           </div>
         </div>
       </div>
-
       <div class="form-row">
         <div class="form-group">
           <label for="fundSelect">If invested in</label>
@@ -52,15 +49,20 @@
           </select>
         </div>
         <div class="form-group">
-          <label for="years">Over how many years?</label>
-          <div class="years-wrap">
-            <input type="range" id="yearsRange" min="1" max="40" value="10" />
-            <span class="years-display"><span id="yearsVal">10</span> yrs</span>
+          <label>Over how many years?</label>
+          <div class="slider-group">
+            <div class="slider-top">
+              <span class="slider-label-text">Drag to set time horizon</span>
+              <span class="slider-value"><span id="yearsVal">10</span> yrs</span>
+            </div>
+            <input type="range" id="yearsRange" min="1" max="40" value="10" step="1" />
+            <div class="slider-ticks">
+              <span>1yr</span><span>10yr</span><span>20yr</span><span>30yr</span><span>40yr</span>
+            </div>
           </div>
         </div>
       </div>
-
-      <button class="calc-btn" id="calcBtn" onclick="calculate()">
+      <button class="calc-btn" onclick="calculate()">
         <span class="btn-text">Calculate the real cost</span>
         <span class="btn-arrow">→</span>
       </button>
@@ -69,27 +71,20 @@
     <section id="results" class="results hidden">
 
       <div class="gif-zone">
-        <img id="gifImg" src="" alt="Your financial reality check" />
-        <p id="gifCaption" class="gif-caption"></p>
+        <div class="gif-fallback" id="gifFallback">
+          <div class="gif-fallback-emoji" id="gifEmoji"></div>
+          <div class="gif-fallback-text" id="gifCaption"></div>
+        </div>
+        <img id="gifImg" src="" alt="Your financial reality check" style="display:none;"
+          onload="this.style.display='block';document.getElementById('gifFallback').style.display='none';"
+          onerror="this.style.display='none';document.getElementById('gifFallback').style.display='flex';" />
       </div>
 
       <div class="metrics-grid">
-        <div class="metric">
-          <div class="metric-label">You spent</div>
-          <div class="metric-value" id="metricSpent">—</div>
-        </div>
-        <div class="metric highlight">
-          <div class="metric-label">Could've been worth</div>
-          <div class="metric-value green" id="metricWorth">—</div>
-        </div>
-        <div class="metric">
-          <div class="metric-label">Opportunity cost</div>
-          <div class="metric-value green" id="metricOppty">—</div>
-        </div>
-        <div class="metric">
-          <div class="metric-label">Annual return used</div>
-          <div class="metric-value" id="metricRate">—</div>
-        </div>
+        <div class="metric"><div class="metric-label">You spent</div><div class="metric-value" id="metricSpent">—</div></div>
+        <div class="metric highlight"><div class="metric-label">Could've been worth</div><div class="metric-value green" id="metricWorth">—</div></div>
+        <div class="metric"><div class="metric-label">Opportunity cost</div><div class="metric-value green" id="metricOppty">—</div></div>
+        <div class="metric"><div class="metric-label">Annual return used</div><div class="metric-value" id="metricRate">—</div></div>
       </div>
 
       <div class="chart-card">
@@ -100,9 +95,7 @@
             <span><i class="dot green"></i>What it could've grown to</span>
           </div>
         </div>
-        <div class="chart-wrap">
-          <canvas id="growthChart"></canvas>
-        </div>
+        <div class="chart-wrap"><canvas id="growthChart"></canvas></div>
       </div>
 
       <div class="verdict-card">
@@ -110,25 +103,28 @@
         <p class="verdict-text" id="calloutText"></p>
       </div>
 
+      <div class="feed-section">
+        <div class="feed-header"><span class="feed-dot"></span>Live confessions</div>
+        <div id="feedEmpty" class="feed-empty">No regrets submitted yet — be the first to confess.</div>
+        <div id="feedScroll" class="feed-scroll"></div>
+      </div>
+
       <div class="action-card">
         <div class="action-split">
-
           <div class="email-section">
-            <h3>Save my results</h3>
-            <p>Drop your info and we'll keep your financial regret on record. No spam. Just math.</p>
+            <h3>Send my results</h3>
+            <p>Drop your info (or a friend, family member, or significant other) and we'll keep this financial regret on record. No spam. Just math.</p>
             <div class="name-row">
               <input type="text" id="firstName" placeholder="First name" />
               <input type="text" id="lastName" placeholder="Last name" />
             </div>
             <input type="email" id="emailAddr" placeholder="Email address" />
-            <button class="save-btn" onclick="sendResults()">Save my results</button>
+            <button class="send-btn" onclick="sendResults()">Send my results</button>
             <div id="sendFeedback"></div>
           </div>
-
           <div class="divider-vert"></div>
-
           <div class="share-section">
-            <h3>Share the pain</h3>
+            <h3>Share my pain with the world</h3>
             <p>Make your friends feel bad about their spending habits too. It's what communities are for.</p>
             <div class="share-btns">
               <button class="share-btn twitter" onclick="shareTwitter()">
@@ -145,28 +141,10 @@
               </button>
             </div>
           </div>
-
         </div>
       </div>
 
     </section>
-
-    <section id="leadsSection" class="leads-section hidden">
-      <div class="leads-header">
-        <span>Captured leads <span class="lead-badge" id="leadCount">0</span></span>
-        <button class="export-btn" onclick="exportCSV()">Export CSV</button>
-      </div>
-      <div id="leadsTableWrap">
-        <p class="no-leads" id="noLeadsMsg">No leads yet — be the first guinea pig.</p>
-        <table class="leads-table hidden" id="leadsTable">
-          <thead>
-            <tr><th>First</th><th>Last</th><th>Email</th><th>Item</th><th>Worth</th><th>Time</th></tr>
-          </thead>
-          <tbody id="leadsBody"></tbody>
-        </table>
-      </div>
-    </section>
-
   </main>
 
   <footer class="site-footer">
